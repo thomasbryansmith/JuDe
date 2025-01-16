@@ -1,71 +1,3 @@
-from bs4 import BeautifulSoup
-import requests
-import os
-from tqdm import tqdm
-import re
-import pandas as pd
-import shutil
-from datetime import datetime
-
-url = "https://law.justia.com/cases/federal"
-
-req = requests.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-soup = BeautifulSoup(req.text, "html.parser")
-
-
-# Federal Court of Appeals
-
-fed_coas = soup.find_all("ul", {"class": "indented"})
-fed_coas = [fed_coa.find_all("a", href=True) for fed_coa in fed_coas]
-fed_coas = [fed_coa.get('href') for fed_coa in fed_coas[1]]
-
-
-# Federal District Courts
-
-fed_dcs = soup.find_all("ul", {"class": "list-columns list-columns-three list-no-styles"})
-fed_dcs = [fed_dc.find_all("a", href=True) for fed_dc in fed_dcs]
-fed_dcs = [fed_dc.get('href') for fed_dc in fed_dcs[0]]
-
-for i in range(0,len(fed_dcs)):
-    url = "https://law.justia.com" + fed_dcs[i]
-
-    req = requests.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-    soup = BeautifulSoup(req.text, "html.parser")
-
-    dcs = soup.find_all("div", {"class": "indented"})
-    dcs = [dc.find_all("a", href=True) for dc in dcs]
-    fed_dcs[i] = [dc.get('href') for dc in dcs[0]]
-
-fed_dcs = sum([v if isinstance(v, list) else [v] for v in fed_dcs],[])
-
-
-# State Courts
-
-url = "https://law.justia.com/cases"
-
-req = requests.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-soup = BeautifulSoup(req.text, "html.parser")
-
-scas = soup.find_all("ul", {"class": "list-columns list-columns-three list-no-styles"})
-scas = [sca.find_all("a", href=True) for sca in scas]
-scas = [sca.get('href') for sca in scas[1]]
-
-for i in range(0,len(scas)):
-    url = "https://law.justia.com" + scas[i]
-
-    req = requests.get(url, headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"})
-    soup = BeautifulSoup(req.text, "html.parser")
-
-    sc = soup.find_all("div", {"class": "indented"})
-    sc = [c.find_all("a", href=True) for c in sc]
-    scas[i] = [c.get('href') for c in sc[0]]
-
-scas = sum([v if isinstance(v, list) else [v] for v in scas],[])
-
-
-# Combined urls
-courts = fed_coas + fed_dcs + scas
-
 def slugify(value):
     """Converts text into a directory-friendly format. 
 
@@ -172,7 +104,7 @@ def justia_scrape(years, court):
         print(" ")
         
         
-        
+    
 def court_search(text):
     """searches the courts object, a list of valid input strings for the justia_scrape function.
 
