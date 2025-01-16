@@ -28,6 +28,15 @@ def justia_scrape(years, court):
         years (list): list of years for which you wish to download data.
         court (string): target court, must match law.justia.com URL format. See the 'courts' object.
     """
+    from bs4 import BeautifulSoup
+    import requests
+    import os
+    from tqdm import tqdm
+    import re
+    import pandas as pd
+    import shutil
+    from datetime import datetime
+    
     print("+++ " + str(datetime.now()) + " +++\n")
     print("//LAWJUSTIASCRAPER")
     print("//"+court.upper()+"\n")
